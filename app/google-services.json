@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "165289892919",
+    "project_id": "reve-dacc2",
+    "storage_bucket": "reve-dacc2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165289892919:android:688ea923df752fce88b3b2",
+        "android_client_info": {
+          "package_name": "com.edozie.reve_jc"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCRx-WlbCDa-DwF6L1gv8nslPNZstrdyKg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
