@@ -1,5 +1,6 @@
 package com.edozie.reve_jc.ui.screen
 
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -38,11 +39,13 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.edozie.reve_jc.R
 import com.edozie.reve_jc.ui.widget.CustomTextField
+import com.edozie.reve_jc.util.CustomBottomNavBar
 
 @Composable
-fun SignupScreen(navController: NavController) {
+fun LoginScreen(navController: NavController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -67,15 +70,15 @@ fun SignupScreen(navController: NavController) {
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "CREATE YOUR WALLET",
+                text = "LOG INTO YOUR WALLET",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(24.dp))
             Row {
-                Text("Already have a wallet? ")
+                Text("Don't have an account? ")
                 Text(
-                    text = "Log in",
+                    text = "Sign up",
                     color = Color(0xFF04F6DA),
                     modifier = Modifier.clickable { /* navigate to login */ }
                 )
@@ -98,14 +101,18 @@ fun SignupScreen(navController: NavController) {
             // Continue Button
             Button(
                 shape = RoundedCornerShape(8.dp),
-                onClick = { /* handle continue */ },
+                onClick = {
+                    navController.navigate(CustomBottomNavBar.Assets.route) {
+                        popUpTo("login") { inclusive = true }
+                    }
+                },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF04F6DA)),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
             ) {
                 Text(
-                    "Continue", color = Color.Black, style = TextStyle(
+                    "Login", color = Color.Black, style = TextStyle(
                         fontWeight = FontWeight.Bold
                     )
                 )
@@ -172,6 +179,7 @@ fun SignupScreen(navController: NavController) {
 
 @Preview(showBackground = true)
 @Composable
-fun SignupScreenPreview() {
-//    SignupScreen()
+fun LoginScreenPreview() {
+    val navController = rememberNavController()
+    LoginScreen(navController)
 }

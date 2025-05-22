@@ -1,4 +1,4 @@
-package com.edozie.reve_jc.ui.screen.widget
+package com.edozie.reve_jc.ui.widget
 
 
 import androidx.compose.foundation.layout.fillMaxWidth
