@@ -1,5 +1,6 @@
 package com.edozie.reve_jc.ui.screen
 
+
 import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -42,37 +43,36 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.edozie.reve_jc.R
 import com.edozie.reve_jc.ui.widget.CustomTextField
 import com.edozie.reve_jc.util.AuthState
+import com.edozie.reve_jc.util.CustomBottomNavBar
 import com.edozie.reve_jc.util.NetworkObserver
 import com.edozie.reve_jc.viewmodel.AuthViewModel
 
 @Composable
-fun SignupScreen(
+fun LoginScreen(
     navController: NavController,
-    networkObserver: NetworkObserver,
     vm: AuthViewModel = hiltViewModel(),
+    networkObserver: NetworkObserver
 ) {
-
     val state by vm.state.collectAsState()
     val email by vm.email.collectAsState()
     val password by vm.password.collectAsState()
     val context = LocalContext.current
 
-    // Local UI state for validation error
+    // Local UI state for validation errors
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
 
 
-    // Navigation side-effect
     LaunchedEffect(state) {
         if (state is AuthState.Authenticated) {
-            navController.navigate("login") {
-                popUpTo("signup") { inclusive = true }
+            navController.navigate(CustomBottomNavBar.Assets.route) {
+                popUpTo("login") { inclusive = true }
             }
         }
     }
@@ -98,15 +98,15 @@ fun SignupScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "CREATE YOUR WALLET",
+                text = "LOG INTO YOUR WALLET",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(24.dp))
             Row {
-                Text("Already have a wallet? ")
+                Text("Don't have an account? ")
                 Text(
-                    text = "Log in",
+                    text = "Sign up",
                     color = Color(0xFF04F6DA),
                     modifier = Modifier.clickable { /* navigate to login */ }
                 )
@@ -121,8 +121,6 @@ fun SignupScreen(
                 placeholder = "Email address",
                 isPassword = false,
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            emailError?.let { Text(it, color = Color.Red, fontSize = 12.sp) }
             Spacer(modifier = Modifier.height(12.dp))
             CustomTextField(
                 value = password,
@@ -133,10 +131,7 @@ fun SignupScreen(
                 placeholder = "Enter a password",
                 isPassword = true,
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            passwordError?.let { Text(it, color = Color.Red, fontSize = 12.sp) }
             Spacer(modifier = Modifier.height(12.dp))
-            // Show Firebase error if any
             if (state is AuthState.Error) {
                 Text((state as AuthState.Error).message, color = Color.Red)
             }
@@ -146,23 +141,20 @@ fun SignupScreen(
                 onClick = {
                     // Empty‑field check (email)
                     if (email.isBlank()) {
-                        emailError = "Email cannot be empty"
+                        emailError = "Email field can not be empty"
                         return@Button
                     }
                     // Empty‑field check (password)
                     if (password.isBlank()) {
-                        passwordError = "Password cannot be empty"
+                        passwordError = "Password field can not be empty"
                         return@Button
                     }
-
                     // Connectivity check
                     if (!networkObserver.isOnline()) {
                         Toast.makeText(context, "No internet connection", Toast.LENGTH_SHORT).show()
                         return@Button
                     }
-
-                    // All good
-                    vm.signUp(email.trim(), password.trim())
+                    vm.login(email.trim(), password.trim())
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF04F6DA)),
                 modifier = Modifier
@@ -173,7 +165,7 @@ fun SignupScreen(
                     CircularProgressIndicator(Modifier.size(24.dp))
                 } else {
                     Text(
-                        "Continue", color = Color.Black, style = TextStyle(
+                        "Login", color = Color.Black, style = TextStyle(
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -241,6 +233,7 @@ fun SignupScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun SignupScreenPreview() {
-//    SignupScreen()
+fun LoginScreenPreview() {
+//    val navController = rememberNavController()
+//    LoginScreen(navController)
 }

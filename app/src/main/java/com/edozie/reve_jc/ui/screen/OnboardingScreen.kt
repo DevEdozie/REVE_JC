@@ -32,8 +32,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.edozie.reve_jc.R
-import com.edozie.reve_jc.ui.screen.widget.PageContent
+import com.edozie.reve_jc.ui.widget.PageContent
 import com.edozie.reve_jc.util.model.OnboardingPage
 import com.edozie.reve_jc.util.model.pages
 
@@ -41,6 +42,7 @@ import com.edozie.reve_jc.util.model.pages
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(
+    navController: NavController,
     pages: List<OnboardingPage>,
     onLoginClick: () -> Unit,
     onCreateClick: () -> Unit,
@@ -99,7 +101,11 @@ fun OnboardingScreen(
 
             ),
             shape = RoundedCornerShape(8.dp),
-            onClick = onLoginClick,
+            onClick = {
+                navController.navigate("login") {
+                    popUpTo("onboarding") { inclusive = true }
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -116,7 +122,12 @@ fun OnboardingScreen(
                 containerColor = Color(0xFF04F6DA)
             ),
             shape = RoundedCornerShape(8.dp),
-            onClick = onCreateClick,
+//            onClick = onCreateClick,
+            onClick = {
+                navController.navigate("signup") {
+                    popUpTo("onboarding") { inclusive = true }
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
@@ -152,10 +163,10 @@ fun OnboardingScreen(
 @Preview(showBackground = true)
 @Composable
 fun OnboardingPagePreview() {
-    OnboardingScreen(
-        pages = pages,
-        onLoginClick = { /* navigate to Login */ },
-        onCreateClick = { /* navigate to SignUp */ },
-        onGoogleClick = { /* launch Google sign-in */ }
-    )
+//    OnboardingScreen(
+//        pages = pages,
+//        onLoginClick = { /* navigate to Login */ },
+//        onCreateClick = { /* navigate to SignUp */ },
+//        onGoogleClick = { /* launch Google sign-in */ }
+//    )
 }
