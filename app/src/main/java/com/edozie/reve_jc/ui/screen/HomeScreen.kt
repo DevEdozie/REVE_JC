@@ -14,12 +14,13 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.edozie.reve_jc.ui.widget.CustomBottomNavigationBar
 import com.edozie.reve_jc.util.CustomBottomNavBar
+import com.edozie.reve_jc.util.NetworkObserver
 import com.edozie.reve_jc.util.model.pages
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(networkObserver: NetworkObserver) {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val userCurrentRoute = currentBackStackEntry?.destination?.route
@@ -57,7 +58,7 @@ fun HomeScreen() {
                 .padding(paddingValues)
         ) {
             composable("splash") { SplashScreen(navController) }
-            composable("signup") { SignupScreen(navController) }
+            composable("signup") { SignupScreen(navController, networkObserver = networkObserver) }
             composable("login") { LoginScreen(navController) }
             composable(CustomBottomNavBar.Assets.route) { AssetsScreen() }
             composable(CustomBottomNavBar.Earn.route) { EarnScreen() }

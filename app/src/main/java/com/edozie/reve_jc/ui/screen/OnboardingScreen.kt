@@ -120,7 +120,7 @@ fun OnboardingScreen(
             shape = RoundedCornerShape(8.dp),
 //            onClick = onCreateClick,
             onClick = {
-                navController.navigate("login"){
+                navController.navigate("signup") {
                     popUpTo("onboarding") { inclusive = true }
                 }
             },
