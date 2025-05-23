@@ -59,7 +59,7 @@ fun HomeScreen(networkObserver: NetworkObserver) {
         ) {
             composable("splash") { SplashScreen(navController) }
             composable("signup") { SignupScreen(navController, networkObserver = networkObserver) }
-            composable("login") { LoginScreen(navController) }
+            composable("login") { LoginScreen(navController, networkObserver = networkObserver) }
             composable(CustomBottomNavBar.Assets.route) { AssetsScreen() }
             composable(CustomBottomNavBar.Earn.route) { EarnScreen() }
             composable(CustomBottomNavBar.Updates.route) { UpdatesScreen() }

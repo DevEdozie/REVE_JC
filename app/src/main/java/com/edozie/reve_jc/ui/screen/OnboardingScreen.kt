@@ -101,7 +101,11 @@ fun OnboardingScreen(
 
             ),
             shape = RoundedCornerShape(8.dp),
-            onClick = onLoginClick,
+            onClick = {
+                navController.navigate("login") {
+                    popUpTo("onboarding") { inclusive = true }
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(

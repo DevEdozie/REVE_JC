@@ -116,6 +116,7 @@ fun SignupScreen(
                 value = email,
                 onValueChange = {
                     vm.onEmailChange(it)
+                    emailError = null
                 },
                 placeholder = "Email address",
                 isPassword = false,
@@ -127,6 +128,7 @@ fun SignupScreen(
                 value = password,
                 onValueChange = {
                     vm.onPasswordChange(it)
+                    passwordError = null
                 },
                 placeholder = "Enter a password",
                 isPassword = true,
