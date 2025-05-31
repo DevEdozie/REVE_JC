@@ -15,6 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import com.edozie.reve_jc.ui.widget.CustomBottomNavigationBar
 import com.edozie.reve_jc.util.CustomBottomNavBar
 import com.edozie.reve_jc.util.NetworkObserver
+import com.edozie.reve_jc.util.Routes
 import com.edozie.reve_jc.util.model.pages
 
 @RequiresApi(Build.VERSION_CODES.P)
@@ -53,18 +54,28 @@ fun HomeScreen(networkObserver: NetworkObserver) {
     ) { paddingValues ->
         NavHost(
             navController = navController,
-            startDestination = "splash",
+            startDestination = Routes.SPLASH,
             modifier = Modifier
                 .padding(paddingValues)
         ) {
-            composable("splash") { SplashScreen(navController) }
-            composable("signup") { SignupScreen(navController, networkObserver = networkObserver) }
-            composable("login") { LoginScreen(navController, networkObserver = networkObserver) }
+            composable(Routes.SPLASH) { SplashScreen(navController) }
+            composable(Routes.SIGNUP) {
+                SignupScreen(
+                    navController,
+                    networkObserver = networkObserver
+                )
+            }
+            composable(Routes.LOGIN) {
+                LoginScreen(
+                    navController,
+                    networkObserver = networkObserver
+                )
+            }
             composable(CustomBottomNavBar.Assets.route) { AssetsScreen() }
             composable(CustomBottomNavBar.Earn.route) { EarnScreen() }
             composable(CustomBottomNavBar.Updates.route) { UpdatesScreen() }
             composable(CustomBottomNavBar.Profile.route) { ProfileScreen() }
-            composable("onboarding") {
+            composable(Routes.ONBOARDING) {
                 OnboardingScreen(
                     navController, pages = pages,
                     onLoginClick = { /* navigate to Login */ },

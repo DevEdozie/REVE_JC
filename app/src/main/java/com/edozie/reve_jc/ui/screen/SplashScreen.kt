@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.edozie.reve_jc.util.CustomBottomNavBar
+import com.edozie.reve_jc.util.Routes
 import kotlinx.coroutines.delay
 
 @Composable
@@ -35,11 +36,11 @@ fun SplashScreen(navController: NavController) {
             val isLoggedIn = prefs.getBoolean("is_logged_in", false)
             if (isLoggedIn) {
                 navController.navigate(CustomBottomNavBar.Assets.route) {
-                    popUpTo("splash") { inclusive = true }
+                    popUpTo(Routes.SPLASH) { inclusive = true }
                 }
             } else {
-                navController.navigate("onboarding") {
-                    popUpTo("splash") { inclusive = true }
+                navController.navigate(Routes.ONBOARDING) {
+                    popUpTo(Routes.SPLASH) { inclusive = true }
                 }
             }
         } catch (e: Exception) {
@@ -55,12 +56,12 @@ fun SplashScreen(navController: NavController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF04F6DA)),
+            .background(Color.White),
         contentAlignment = Alignment.Center,
 
         ) {
         Text(
-            text = "REVE",
+            text = "TACT",
             style = TextStyle(
                 fontFamily = FontFamily.SansSerif,
                 fontWeight = FontWeight.Bold,
