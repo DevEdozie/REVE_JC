@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.edozie.reve_jc.RequestNotificationPermissionIfNeeded
 import com.edozie.reve_jc.ui.widget.CustomBottomNavigationBar
 import com.edozie.reve_jc.util.CustomBottomNavBar
 import com.edozie.reve_jc.util.NetworkObserver
@@ -22,15 +23,17 @@ import com.edozie.reve_jc.util.model.pages
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(networkObserver: NetworkObserver) {
+    RequestNotificationPermissionIfNeeded()
+
+
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val userCurrentRoute = currentBackStackEntry?.destination?.route
 
 
     val showBottomBar = when {
-        userCurrentRoute == CustomBottomNavBar.Assets.route -> true
-        userCurrentRoute == CustomBottomNavBar.Earn.route -> true
-        userCurrentRoute == CustomBottomNavBar.Updates.route -> true
+        userCurrentRoute == CustomBottomNavBar.Tasks.route -> true
+        userCurrentRoute == CustomBottomNavBar.Today.route -> true
         userCurrentRoute == CustomBottomNavBar.Profile.route -> true
         else -> false
     }
@@ -43,7 +46,7 @@ fun HomeScreen(networkObserver: NetworkObserver) {
                     onNavigate = { route ->
                         navController.navigate(route) {
                             // Avoid multiple copies of the same destination
-                            popUpTo(CustomBottomNavBar.Assets.route) { saveState = true }
+                            popUpTo(CustomBottomNavBar.Tasks.route) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
                         }
@@ -71,9 +74,8 @@ fun HomeScreen(networkObserver: NetworkObserver) {
                     networkObserver = networkObserver
                 )
             }
-            composable(CustomBottomNavBar.Assets.route) { AssetsScreen() }
-            composable(CustomBottomNavBar.Earn.route) { EarnScreen() }
-            composable(CustomBottomNavBar.Updates.route) { UpdatesScreen() }
+            composable(CustomBottomNavBar.Tasks.route) { TasksScreen() }
+            composable(CustomBottomNavBar.Today.route) { TodayScreen() }
             composable(CustomBottomNavBar.Profile.route) { ProfileScreen() }
             composable(Routes.ONBOARDING) {
                 OnboardingScreen(

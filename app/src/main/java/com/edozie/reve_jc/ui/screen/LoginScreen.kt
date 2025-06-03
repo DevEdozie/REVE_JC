@@ -72,7 +72,7 @@ fun LoginScreen(
 
     LaunchedEffect(state) {
         if (state is AuthState.Authenticated) {
-            navController.navigate(CustomBottomNavBar.Assets.route) {
+            navController.navigate(CustomBottomNavBar.Tasks.route) {
                 popUpTo(Routes.LOGIN) { inclusive = true }
             }
         }

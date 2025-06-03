@@ -35,7 +35,7 @@ fun SplashScreen(navController: NavController) {
             val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
             val isLoggedIn = prefs.getBoolean("is_logged_in", false)
             if (isLoggedIn) {
-                navController.navigate(CustomBottomNavBar.Assets.route) {
+                navController.navigate(CustomBottomNavBar.Tasks.route) {
                     popUpTo(Routes.SPLASH) { inclusive = true }
                 }
             } else {
