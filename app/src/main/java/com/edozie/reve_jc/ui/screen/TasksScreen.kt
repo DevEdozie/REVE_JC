@@ -31,6 +31,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.edozie.reve_jc.R
 import com.edozie.reve_jc.local.model.Task
 import com.edozie.reve_jc.local.model.TaskStatus
@@ -38,10 +39,15 @@ import com.edozie.reve_jc.ui.widget.EmptyTaskPlaceholder
 import com.edozie.reve_jc.ui.widget.GreetingSection
 import com.edozie.reve_jc.ui.widget.HorizontalPagerTabRow
 import com.edozie.reve_jc.ui.widget.TaskCard
+import com.edozie.reve_jc.util.CustomBottomNavBar
+import com.edozie.reve_jc.util.Routes
+import com.edozie.reve_jc.util.Screen
 import com.edozie.reve_jc.viewmodel.TaskViewModel
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TasksScreen(
+    navController: NavController,
     vm: TaskViewModel = hiltViewModel(),
 //    onAddTaskClick: () -> Unit,
 //    onEditTaskClick: (Task) -> Unit
@@ -102,10 +108,11 @@ fun TasksScreen(
                 pressedElevation = 12.dp
             ),
             shape = CircleShape,
-            containerColor = Color(0xFF007AFF),
-            contentColor = Color.White,
+            containerColor = Color.White,
+            contentColor = Color.Black,
             onClick = {
                 // Handle add task click
+                navController.navigate(Screen.AddTask.route)
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -113,7 +120,7 @@ fun TasksScreen(
                 .size(56.dp)
         ) {
             Icon(
-                painter = painterResource(R.drawable.tasks_ic),
+                painter = painterResource(R.drawable.add_task_ic),
                 contentDescription = "New task",
                 modifier = Modifier.padding(12.dp)
             )
