@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -35,8 +36,15 @@ class TaskViewModel @Inject constructor(
     private val _currentTask = MutableStateFlow<Task?>(null)
     val currentTask: StateFlow<Task?> = _currentTask
 
+    private var _currentSteps = MutableStateFlow<Flow<List<Step?>>>(emptyFlow())
+    val currentSteps: StateFlow<Flow<List<Step?>>> = _currentSteps
+
     fun loadTask(id: Int) = viewModelScope.launch {
         _currentTask.value = repository.getTaskById(id)
+    }
+
+    fun loadSteps(id: Int) = viewModelScope.launch {
+        _currentSteps.value = repository.getSteps(id)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -44,6 +52,17 @@ class TaskViewModel @Inject constructor(
         repository.insertTask(task)
         AlarmUtil.setAlarmsForTask(application, task)
     }
+
+    // ADD TASK WITH STEPS
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun addTaskWIthSteps(task: Task, steps: List<String>) =
+        viewModelScope.launch {
+            val taskId = repository.insertTask(task).toInt()
+            steps.forEach { taskDescription ->
+                repository.insertStep(Step(taskId = taskId, description = taskDescription))
+            }
+            AlarmUtil.setAlarmsForTask(application, task.copy(id = taskId))
+        }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateTask(task: Task) = viewModelScope.launch {
@@ -65,5 +84,7 @@ class TaskViewModel @Inject constructor(
         repository.updateStep(step.copy(isDone = true))
     }
 
-    fun stepsForTask(taskId: Int): Flow<List<Step>> = repository.getSteps(taskId)
+//    fun stepsForTask(taskId: Int): Flow<List<Step>> = repository.getSteps(taskId)
+
+
 }

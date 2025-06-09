@@ -1,6 +1,7 @@
 package com.edozie.reve_jc.ui.screen
 
 import android.os.Build
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,22 +35,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.edozie.reve_jc.local.model.Task
 import com.edozie.reve_jc.local.model.TaskPriority
 import com.edozie.reve_jc.local.model.TaskStatus
 import com.edozie.reve_jc.ui.widget.DateTimePickerRow
 import com.edozie.reve_jc.ui.widget.PriorityDropdown
 import com.edozie.reve_jc.ui.widget.TimePickerRow
+import com.edozie.reve_jc.util.CustomBottomNavBar
+import com.edozie.reve_jc.util.Routes
+import com.edozie.reve_jc.util.Screen
+import com.edozie.reve_jc.viewmodel.TaskViewModel
 import java.time.LocalDate
 import java.time.LocalTime
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AddTaskScreen() {
+fun AddTaskScreen(
+    navController: NavController,
+    vm: TaskViewModel = hiltViewModel()
+) {
 
     val context = LocalContext.current
 
-    // State variables
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
     var startDate by remember { mutableStateOf<LocalDate?>(null) }
@@ -60,6 +70,8 @@ fun AddTaskScreen() {
     var priority by remember { mutableStateOf(TaskPriority.LOW) }
     var steps by remember { mutableStateOf(mutableListOf<String>()) }
     var newStepText by remember { mutableStateOf("") }
+
+    var errorMessage by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -159,23 +171,79 @@ fun AddTaskScreen() {
             }
         }
 
+        errorMessage?.let {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = it, color = Color.Red)
+        }
+
         Spacer(modifier = Modifier.height(20.dp))
 
         Button(
             onClick = {
-//                val newTask = Task(
-//                    title = title,
-//                    description = description,
-//                    startDate = startDate.toString(),
-//                    endDate = endDate.toString(),
-//                    startTime = startTime.toString(),
-//                    endTime = endTime.toString(),
-//                    priority = priority,
-//                    status = TaskStatus.TODO,
-//                    steps = steps,
-//                    progress = 0
-//                )
-//                onSaveTask(newTask)
+                val nowDate = LocalDate.now()
+                val nowTime = LocalTime.now()
+
+                when {
+                    title.isBlank() -> {
+                        errorMessage = "Task title is required"
+                        return@Button
+                    }
+
+                    startDate == null || endDate == null -> {
+                        errorMessage = "Start and End dates are required"
+                        return@Button
+                    }
+
+                    startDate!!.isBefore(nowDate) -> {
+                        errorMessage = "Start date cannot be in the past"
+                        return@Button
+                    }
+
+                    endDate!!.isBefore(startDate) -> {
+                        errorMessage = "End date cannot be before start date"
+                        return@Button
+                    }
+
+                    startTime == null || endTime == null -> {
+                        errorMessage = "Start and End time are required"
+                        return@Button
+                    }
+
+                    startDate == nowDate && startTime!!.isBefore(nowTime) -> {
+                        errorMessage = "Start time cannot be in the past"
+                        return@Button
+                    }
+
+                    startDate == endDate && endTime!!.isBefore(startTime) -> {
+                        errorMessage = "End time cannot be before start time on the same day"
+                        return@Button
+                    }
+
+                    else -> {
+                        errorMessage = null
+
+                        val newTask = Task(
+                            title = title,
+                            description = description.ifBlank { null },
+                            startDate = startDate!!,
+                            endDate = endDate!!,
+                            startTime = startTime!!,
+                            endTime = endTime!!,
+                            priority = priority,
+                            progress = 0,
+                            status = TaskStatus.TODO
+                        )
+
+                        // Save task + steps in VM
+                        vm.addTaskWIthSteps(newTask, steps.toList())
+                        Toast.makeText(context, "Task created successfully", Toast.LENGTH_SHORT)
+                            .show()
+                        navController.navigate(CustomBottomNavBar.Tasks.route) {
+                            popUpTo(Screen.AddTask.route) { inclusive = true }
+                        }
+
+                    }
+                }
             },
             enabled = title.isNotBlank() && startDate != null && endDate != null,
             shape = RoundedCornerShape(8.dp),
@@ -196,5 +264,6 @@ fun AddTaskScreen() {
 @Preview(showBackground = true)
 @Composable
 fun AddTaskScreenPreview() {
-    AddTaskScreen()
+    val navController = rememberNavController()
+    AddTaskScreen(navController)
 }

@@ -1,5 +1,6 @@
 package com.edozie.reve_jc.ui.widget
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,17 +24,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.edozie.reve_jc.local.model.Task
 import com.edozie.reve_jc.local.model.TaskPriority
+import com.edozie.reve_jc.util.Screen
 
 @Composable
 fun TaskCard(
     task: Task,
-    onEditClick: () -> Unit
+    onEditClick: () -> Unit,
+    navController: NavController
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
+            .clickable {
+                navController.navigate(Screen.TaskDetail.createRoute(task.id))
+            }
             .padding(8.dp),
         elevation = CardDefaults.cardElevation(4.dp)
     ) {

@@ -94,7 +94,7 @@ fun TasksScreen(
                                 .padding(horizontal = 16.dp, vertical = 8.dp)
                         ) {
                             items(filteredTasks) { task ->
-                                TaskCard(task = task, onEditClick = { /* Handle edit */ })
+                                TaskCard(task = task, onEditClick = { /* Handle edit */ }, navController = navController)
                             }
                         }
                     }

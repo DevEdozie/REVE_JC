@@ -16,35 +16,29 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.edozie.reve_jc.local.model.TaskPriority
 import com.edozie.reve_jc.util.getPriorityColor
+import com.edozie.reve_jc.viewmodel.TaskViewModel
+import kotlinx.coroutines.flow.toList
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun TaskDetailScreen(
-    taskTitle: String = "UI Redesign",
-    taskDescription: String = "Redesign the onboarding flow and improve task navigation.",
-    priority: TaskPriority = TaskPriority.HIGH,
-    startDate: LocalDate = LocalDate.now(),
-    endDate: LocalDate = LocalDate.now().plusDays(3),
-    startTime: LocalTime = LocalTime.of(9, 0),
-    endTime: LocalTime = LocalTime.of(17, 0),
-    steps: List<Pair<String, Boolean>> = listOf(
-        "Sketch wireframes" to true,
-        "Build prototype" to false,
-        "Collect feedback" to false
-    ),
-    isTaskDone: Boolean = false,
-    onMarkTaskDone: () -> Unit = {},
-    onEditClick: () -> Unit = {},
-    onDeleteClick: () -> Unit = {},
-    onToggleStep: (index: Int, checked: Boolean) -> Unit = { _, _ -> }
+    vm: TaskViewModel = hiltViewModel()
 ) {
-    val progress = remember(steps) {
-        steps.count { it.second }.toFloat() / steps.size.coerceAtLeast(1)
-    }
+
+    val currentTask by vm.currentTask.collectAsState()
+    val currentSteps by vm.currentSteps.collectAsState()
+
+    val isTaskDone by remember { mutableStateOf(false) }
+
+    // Prepare formatters
+    val dateFormatter = remember { DateTimeFormatter.ofPattern("MMM d, yyyy") }
+    val timeFormatter = remember { DateTimeFormatter.ofPattern("h:mm a") }
 
     Column(
         modifier = Modifier
@@ -53,12 +47,12 @@ fun TaskDetailScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            text = taskTitle,
+            text = currentTask?.title!!,
             style = MaterialTheme.typography.headlineMedium
         )
 
         Text(
-            text = taskDescription,
+            text = currentTask?.description!!,
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Gray,
             modifier = Modifier.padding(top = 4.dp)
@@ -70,94 +64,117 @@ fun TaskDetailScreen(
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
-                    .size(12.dp)
+                    .height(10.dp)
+                    .width(20.dp)
+//                    .size(20.dp)
                     .background(
-                        color = getPriorityColor(priority),
-                        shape = RoundedCornerShape(4.dp)
+                        color = getPriorityColor(currentTask?.priority!!),
+                        shape = RoundedCornerShape(8.dp)
                     )
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("Priority: ${priority.name}", style = MaterialTheme.typography.bodyMedium)
+            Spacer(modifier = Modifier.width(12.dp))
+            Text(
+                "Priority: ${currentTask?.priority?.name!!}",
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Text("Start: $startDate at $startTime")
-        Text("End: $endDate at $endTime")
+        // Formatted dates & times
+        val startDate = currentTask?.startDate?.format(dateFormatter)!!
+        val endDate = currentTask?.endDate?.format(dateFormatter)!!
+        val startTime = currentTask?.startTime?.format(timeFormatter)!!
+        val endTime = currentTask?.endTime?.format(timeFormatter)!!
+
+        Text("Start: ${startDate} at ${startTime}")
+        Text("End: ${endDate} at ${endTime}")
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Progress bar
         Text("Progress", style = MaterialTheme.typography.titleMedium)
         LinearProgressIndicator(
-            progress = { progress },
+            progress = { currentTask?.progress!! / 100f },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RoundedCornerShape(50)),
         )
-        Text("${(progress * 100).toInt()}%", modifier = Modifier.padding(top = 4.dp))
+        Text(
+            "${currentTask?.progress!!}%",
+            modifier = Modifier.padding(top = 4.dp)
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         // Step checklist
         Text("Steps", style = MaterialTheme.typography.titleMedium)
         Spacer(modifier = Modifier.height(8.dp))
-        steps.forEachIndexed { index, (text, isDone) ->
+
+        val steps by currentSteps.collectAsState(initial = emptyList())
+        if (steps.isEmpty()) {
+            Text("No steps added.", color = Color.Gray)
+        } else {
+            steps.forEach { step ->
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Checkbox(
+                        checked = step?.isDone!!,
+                        onCheckedChange = { checked ->
+//                            vm.markStepDone(step.copy(isDone = checked))
+                        }
+                    )
+                    Text(
+                        text = step.description,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = if (step.isDone) Color.Gray else Color.Unspecified
+                        ),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Mark task done
+            Button(
+                onClick = {},
+                enabled = !isTaskDone,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(if (isTaskDone) "Task Completed" else "Mark as Done")
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Edit/Delete buttons
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 4.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Checkbox(
-                    checked = isDone,
-                    onCheckedChange = { onToggleStep(index, it) }
-                )
-                Text(
-                    text = text,
-                    style = if (isDone) MaterialTheme.typography.bodyMedium.copy(color = Color.Gray) else MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Mark task done
-        Button(
-            onClick = onMarkTaskDone,
-            enabled = !isTaskDone,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(if (isTaskDone) "Task Completed" else "Mark as Done")
-        }
-
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Edit/Delete buttons
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            OutlinedButton(
-                onClick = onEditClick,
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.Edit, contentDescription = "Edit")
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Edit")
-            }
-            Spacer(modifier = Modifier.width(12.dp))
-            OutlinedButton(
-                onClick = onDeleteClick,
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
-                modifier = Modifier.weight(1f)
-            ) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete")
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("Delete")
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Default.Edit, contentDescription = "Edit")
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Edit")
+                }
+                Spacer(modifier = Modifier.width(12.dp))
+                OutlinedButton(
+                    onClick = {},
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Delete")
+                }
             }
         }
     }

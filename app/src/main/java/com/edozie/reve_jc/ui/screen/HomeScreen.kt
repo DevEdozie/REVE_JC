@@ -2,26 +2,38 @@ package com.edozie.reve_jc.ui.screen
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.edozie.reve_jc.RequestNotificationPermissionIfNeeded
 import com.edozie.reve_jc.ui.widget.CustomBottomNavigationBar
 import com.edozie.reve_jc.util.CustomBottomNavBar
@@ -29,6 +41,7 @@ import com.edozie.reve_jc.util.NetworkObserver
 import com.edozie.reve_jc.util.Routes
 import com.edozie.reve_jc.util.Screen
 import com.edozie.reve_jc.util.model.pages
+import com.edozie.reve_jc.viewmodel.TaskViewModel
 
 @RequiresApi(Build.VERSION_CODES.P)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -44,12 +57,19 @@ fun HomeScreen(networkObserver: NetworkObserver) {
 
     val screenTitle = when (userCurrentRoute) {
         Screen.AddTask.route -> "Add Task"
+        CustomBottomNavBar.Tasks.route -> "Tasks"
+        Screen.TaskDetail.route -> "Task Detail"
         else -> ""
     }
 
-    val shouldShowTitle = userCurrentRoute == Screen.AddTask.route
+    val shouldShowTitle = userCurrentRoute in setOf(
+        Screen.AddTask.route,
+        CustomBottomNavBar.Tasks.route,
+        Screen.TaskDetail.route
+    )
 
-    val shouldShowBackArrow = userCurrentRoute == Screen.AddTask.route
+    val shouldShowBackArrow =
+        userCurrentRoute == Screen.AddTask.route || userCurrentRoute == Screen.TaskDetail.route
 
     val showBottomBar = when {
         userCurrentRoute == CustomBottomNavBar.Tasks.route -> true
@@ -60,7 +80,7 @@ fun HomeScreen(networkObserver: NetworkObserver) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 navigationIcon = {
                     if (shouldShowBackArrow) {
                         IconButton(
@@ -112,7 +132,9 @@ fun HomeScreen(networkObserver: NetworkObserver) {
             modifier = Modifier
                 .padding(paddingValues)
         ) {
+            // Splash screen
             composable(Routes.SPLASH) { SplashScreen(navController) }
+            // Auth screens : Start
             composable(Routes.SIGNUP) {
                 SignupScreen(
                     navController,
@@ -125,9 +147,6 @@ fun HomeScreen(networkObserver: NetworkObserver) {
                     networkObserver = networkObserver
                 )
             }
-            composable(CustomBottomNavBar.Tasks.route) { TasksScreen(navController = navController) }
-            composable(CustomBottomNavBar.Today.route) { TodayScreen() }
-            composable(CustomBottomNavBar.Profile.route) { ProfileScreen() }
             composable(Routes.ONBOARDING) {
                 OnboardingScreen(
                     navController, pages = pages,
@@ -135,7 +154,43 @@ fun HomeScreen(networkObserver: NetworkObserver) {
                     onCreateClick = { /* navigate to SignUp */ },
                     onGoogleClick = { /* launch Google sign-in */ })
             }
-            composable(Screen.AddTask.route) { AddTaskScreen() }
+            // Auth screens : End
+            // Bottom bar screens: Start
+            composable(CustomBottomNavBar.Tasks.route) { TasksScreen(navController = navController) }
+            composable(CustomBottomNavBar.Today.route) {
+                TodayTasksScreen(
+                    todayTasks = listOf(),
+                    onTaskClick = {}
+                )
+            }
+            composable(CustomBottomNavBar.Profile.route) { ProfileScreen() }
+            // Bottom bar screens: End
+
+            // App functionality screens: Start
+            composable(Screen.AddTask.route) { AddTaskScreen(navController = navController) }
+            composable(
+                route = Screen.TaskDetail.route, arguments = listOf(
+                    navArgument("taskId") { type = NavType.IntType }
+                )) { backStack ->
+                val vm: TaskViewModel = hiltViewModel()
+                val taskId = backStack.arguments!!.getInt("taskId")
+                LaunchedEffect(taskId) {
+                    vm.loadTask(taskId)
+                    vm.loadSteps(taskId)
+                }
+
+                // guard against null
+                val task by vm.currentTask.collectAsState()
+                if (task != null) {
+                    TaskDetailScreen(vm)
+                } else {
+                    // fallback while loading
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+
         }
     }
 
