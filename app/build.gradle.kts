@@ -75,6 +75,7 @@ dependencies {
 
     // Hilt for dependency injection
     implementation("com.google.dagger:hilt-android:2.52")
+//    implementation(libs.androidx.room.runtime.android)
     kapt("com.google.dagger:hilt-compiler:2.51.1")
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 

@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -59,17 +59,19 @@ fun HomeScreen(networkObserver: NetworkObserver) {
         Screen.AddTask.route -> "Add Task"
         CustomBottomNavBar.Tasks.route -> "Tasks"
         Screen.TaskDetail.route -> "Task Detail"
+        Screen.EditTask.route -> "Edit Task"
         else -> ""
     }
 
     val shouldShowTitle = userCurrentRoute in setOf(
         Screen.AddTask.route,
         CustomBottomNavBar.Tasks.route,
-        Screen.TaskDetail.route
+        Screen.TaskDetail.route,
+        Screen.EditTask.route,
     )
 
     val shouldShowBackArrow =
-        userCurrentRoute == Screen.AddTask.route || userCurrentRoute == Screen.TaskDetail.route
+        userCurrentRoute == Screen.AddTask.route || userCurrentRoute == Screen.TaskDetail.route || userCurrentRoute == Screen.EditTask.route
 
     val showBottomBar = when {
         userCurrentRoute == CustomBottomNavBar.Tasks.route -> true
@@ -183,6 +185,28 @@ fun HomeScreen(networkObserver: NetworkObserver) {
                 val task by vm.currentTask.collectAsState()
                 if (task != null) {
                     TaskDetailScreen(vm)
+                } else {
+                    // fallback while loading
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
+            }
+            composable(
+                route = Screen.EditTask.route, arguments = listOf(
+                    navArgument("taskId") { type = NavType.IntType }
+                )) { backStack ->
+                val vm: TaskViewModel = hiltViewModel()
+                val taskId = backStack.arguments!!.getInt("taskId")
+                LaunchedEffect(taskId) {
+                    vm.loadTask(taskId)
+                    vm.loadSteps(taskId)
+                }
+
+                // guard against null
+                val task by vm.currentTask.collectAsState()
+                if (task != null) {
+                    EditTaskScreen(vm)
                 } else {
                     // fallback while loading
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {

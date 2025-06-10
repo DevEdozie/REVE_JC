@@ -74,7 +74,9 @@ fun TaskCard(
             Text("End: ${task.endDate}")
 
             Spacer(modifier = Modifier.height(8.dp))
-            OutlinedButton(onClick = onEditClick) {
+            OutlinedButton(onClick = {
+                navController.navigate(Screen.EditTask.createRoute(task.id))
+            }) {
                 Icon(Icons.Default.Edit, contentDescription = "Edit Task")
                 Spacer(Modifier.width(8.dp))
                 Text("Edit")
