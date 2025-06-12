@@ -51,6 +51,7 @@ import com.edozie.reve_jc.ui.widget.CustomTextField
 import com.edozie.reve_jc.util.AuthState
 import com.edozie.reve_jc.util.CustomBottomNavBar
 import com.edozie.reve_jc.util.NetworkObserver
+import com.edozie.reve_jc.util.Routes
 import com.edozie.reve_jc.viewmodel.AuthViewModel
 
 @Composable
@@ -71,8 +72,8 @@ fun LoginScreen(
 
     LaunchedEffect(state) {
         if (state is AuthState.Authenticated) {
-            navController.navigate(CustomBottomNavBar.Assets.route) {
-                popUpTo("login") { inclusive = true }
+            navController.navigate(CustomBottomNavBar.Tasks.route) {
+                popUpTo(Routes.LOGIN) { inclusive = true }
             }
         }
     }
@@ -92,13 +93,13 @@ fun LoginScreen(
         ) {
             Spacer(modifier = Modifier.height(24.dp))
             Image(
-                painter = painterResource(R.drawable.wallet_ic),
+                painter = painterResource(R.drawable.task_one_ic),
                 contentDescription = null,
                 modifier = Modifier.size(80.dp)
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "LOG INTO YOUR WALLET",
+                text = "Let’s Get Things Done",
                 style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
                 textAlign = TextAlign.Center
             )
@@ -108,7 +109,12 @@ fun LoginScreen(
                 Text(
                     text = "Sign up",
                     color = Color(0xFF04F6DA),
-                    modifier = Modifier.clickable { /* navigate to login */ }
+                    modifier = Modifier.clickable {
+                        /* navigate to signup */
+                        navController.navigate(Routes.SIGNUP) {
+                            popUpTo(Routes.LOGIN) { inclusive = true }
+                        }
+                    }
                 )
             }
             Spacer(modifier = Modifier.height(24.dp))
@@ -122,6 +128,18 @@ fun LoginScreen(
                 isPassword = false,
             )
             Spacer(modifier = Modifier.height(12.dp))
+            if (emailError != null) {
+                Text(
+                    text = emailError ?: "",
+                    color = Color.Red,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
             CustomTextField(
                 value = password,
                 onValueChange = {
@@ -132,9 +150,31 @@ fun LoginScreen(
                 isPassword = true,
             )
             Spacer(modifier = Modifier.height(12.dp))
-            if (state is AuthState.Error) {
-                Text((state as AuthState.Error).message, color = Color.Red)
+            if (passwordError != null) {
+                Text(
+                    text = passwordError ?: "",
+                    color = Color.Red,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 4.dp)
+                )
             }
+            Spacer(modifier = Modifier.height(4.dp))
+
+            if (state is AuthState.Error) {
+                Text(
+                    (state as AuthState.Error).message,
+                    color = Color.Red,
+                    textAlign = TextAlign.Start,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp, start = 4.dp)
+                )
+            }
+
             // Continue Button
             Button(
                 shape = RoundedCornerShape(8.dp),
@@ -156,7 +196,7 @@ fun LoginScreen(
                     }
                     vm.login(email.trim(), password.trim())
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF04F6DA)),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
@@ -165,7 +205,7 @@ fun LoginScreen(
                     CircularProgressIndicator(Modifier.size(24.dp))
                 } else {
                     Text(
-                        "Login", color = Color.Black, style = TextStyle(
+                        "Login", color = Color.White, style = TextStyle(
                             fontWeight = FontWeight.Bold
                         )
                     )
@@ -176,35 +216,35 @@ fun LoginScreen(
 
             // OR Divider
 
-            Text(
-                "Or", modifier = Modifier.padding(vertical = 8.dp), style = TextStyle(
-                    fontWeight = FontWeight.Bold
-                )
-            )
+//            Text(
+//                "Or", modifier = Modifier.padding(vertical = 8.dp), style = TextStyle(
+//                    fontWeight = FontWeight.Bold
+//                )
+//            )
 
             // Google Button
-            OutlinedButton(
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White
-                ),
-                shape = RoundedCornerShape(8.dp),
-                onClick = {},
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.google_ic),
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-                Spacer(Modifier.width(8.dp))
-                Text(
-                    "Use Google instead", color = Color.Black, style = TextStyle(
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
+//            OutlinedButton(
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color.White
+//                ),
+//                shape = RoundedCornerShape(8.dp),
+//                onClick = {},
+//                modifier = Modifier.fillMaxWidth()
+//            ) {
+//                Image(
+//                    painter = painterResource(R.drawable.google_ic),
+//                    contentDescription = null,
+//                    modifier = Modifier.size(20.dp)
+//                )
+//                Spacer(Modifier.width(8.dp))
+//                Text(
+//                    "Use Google instead", color = Color.Black, style = TextStyle(
+//                        fontWeight = FontWeight.Bold
+//                    )
+//                )
+//            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+//            Spacer(modifier = Modifier.height(16.dp))
 
         }
 
@@ -234,6 +274,13 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-//    val navController = rememberNavController()
-//    LoginScreen(navController)
+    val navController = rememberNavController()
+    // Create a NetworkObserver from the preview's Context
+    val context = LocalContext.current.applicationContext
+    val networkObserver = NetworkObserver(context)
+
+    LoginScreen(
+        navController = navController,
+        networkObserver = networkObserver
+    )
 }

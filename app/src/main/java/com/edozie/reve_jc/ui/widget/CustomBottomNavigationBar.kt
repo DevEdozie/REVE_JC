@@ -23,9 +23,8 @@ fun CustomBottomNavigationBar(
 ) {
 
     val bottomNavItems = listOf(
-        CustomBottomNavBar.Assets,
-        CustomBottomNavBar.Earn,
-        CustomBottomNavBar.Updates,
+        CustomBottomNavBar.Tasks,
+        CustomBottomNavBar.Today,
         CustomBottomNavBar.Profile,
     )
 

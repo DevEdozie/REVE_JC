@@ -97,7 +97,7 @@ fun OnboardingScreen(
         Spacer(modifier = Modifier.height(24.dp))
         Button(
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF04F6DA)
+                containerColor = Color.Black
 
             ),
             shape = RoundedCornerShape(8.dp),
@@ -109,8 +109,8 @@ fun OnboardingScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "Log in to existing wallet,",
-                color = Color.Black,
+                "Log in to manage your tasks",
+                color = Color.White,
                 style = TextStyle(
                     fontWeight = FontWeight.Bold
                 )
@@ -119,7 +119,7 @@ fun OnboardingScreen(
         Spacer(Modifier.height(8.dp))
         Button(
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF04F6DA)
+                containerColor = Color.Black
             ),
             shape = RoundedCornerShape(8.dp),
 //            onClick = onCreateClick,
@@ -131,32 +131,32 @@ fun OnboardingScreen(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(
-                "Create new wallet", color = Color.Black, style = TextStyle(
+                "Create a task manager account", color = Color.White, style = TextStyle(
                     fontWeight = FontWeight.Bold
                 )
             )
         }
         Spacer(Modifier.height(8.dp))
-        OutlinedButton(
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.White
-            ),
-            shape = RoundedCornerShape(8.dp),
-            onClick = onGoogleClick,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Image(
-                painter = painterResource(R.drawable.google_ic),
-                contentDescription = null,
-                modifier = Modifier.size(20.dp)
-            )
-            Spacer(Modifier.width(8.dp))
-            Text(
-                "Continue with Google", color = Color.Black, style = TextStyle(
-                    fontWeight = FontWeight.Bold
-                )
-            )
-        }
+//        OutlinedButton(
+//            colors = ButtonDefaults.buttonColors(
+//                containerColor = Color.White
+//            ),
+//            shape = RoundedCornerShape(8.dp),
+//            onClick = onGoogleClick,
+//            modifier = Modifier.fillMaxWidth()
+//        ) {
+//            Image(
+//                painter = painterResource(R.drawable.google_ic),
+//                contentDescription = null,
+//                modifier = Modifier.size(20.dp)
+//            )
+//            Spacer(Modifier.width(8.dp))
+//            Text(
+//                "Continue with Google", color = Color.Black, style = TextStyle(
+//                    fontWeight = FontWeight.Bold
+//                )
+//            )
+//        }
     }
 }
 
