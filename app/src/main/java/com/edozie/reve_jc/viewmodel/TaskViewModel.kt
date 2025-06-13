@@ -64,12 +64,37 @@ class TaskViewModel @Inject constructor(
             AlarmUtil.setAlarmsForTask(application, task.copy(id = taskId))
         }
 
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun updateTask(task: Task) = viewModelScope.launch {
+//        repository.updateTask(task)
+//        AlarmUtil.cancelAlarmsForTask(application, task.id)
+//        AlarmUtil.setAlarmsForTask(application, task)
+//    }
+
     @RequiresApi(Build.VERSION_CODES.O)
-    fun updateTask(task: Task) = viewModelScope.launch {
+    fun updateTaskWithAlarm(task: Task) = viewModelScope.launch {
+        // Called when date/time changed: cancel old alarms, update DB, then set new alarms
         repository.updateTask(task)
+        _currentTask.value = task // 🔥 Trigger StateFlow update for recomposition
         AlarmUtil.cancelAlarmsForTask(application, task.id)
         AlarmUtil.setAlarmsForTask(application, task)
     }
+
+    fun updateTaskWithoutAlarm(task: Task) = viewModelScope.launch {
+        // Called when only progress/status changes: just update DB, do not touch alarms
+        repository.updateTask(task)
+        _currentTask.value = task // 🔥 Trigger StateFlow update for recomposition
+    }
+
+    fun cancelAlarmsForTaskOnly(taskId: Int) = viewModelScope.launch {
+        AlarmUtil.cancelAlarmsForTask(application, taskId)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun setAlarmsForTaskOnly(task: Task) = viewModelScope.launch {
+        AlarmUtil.setAlarmsForTask(application, task)
+    }
+
 
     fun deleteTask(task: Task) = viewModelScope.launch {
         repository.deleteTask(task)
@@ -83,6 +108,16 @@ class TaskViewModel @Inject constructor(
     fun markStepDone(step: Step) = viewModelScope.launch {
         repository.updateStep(step.copy(isDone = true))
     }
+
+    fun updateStep(step: Step) = viewModelScope.launch {
+        repository.updateStep(step)
+    }
+
+    fun deleteStep(step: Step) = viewModelScope.launch {
+        repository.deleteStep(step)
+    }
+
+
 
 //    fun stepsForTask(taskId: Int): Flow<List<Step>> = repository.getSteps(taskId)
 

@@ -184,7 +184,7 @@ fun HomeScreen(networkObserver: NetworkObserver) {
                 // guard against null
                 val task by vm.currentTask.collectAsState()
                 if (task != null) {
-                    TaskDetailScreen(vm)
+                    TaskDetailScreen(vm, navController = navController)
                 } else {
                     // fallback while loading
                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
